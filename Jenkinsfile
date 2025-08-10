@@ -7,7 +7,7 @@ pipeline {
 
     environment {
         DOCKERHUB = credentials('dockerhubpassword1')
-        IMAGE_NAME = "docker.io/manivannanbgi/bgibridge"
+        IMAGE_NAME = "https://hub.docker.com/manivannanbgi/bgibridge"
     }
 
     stages {
