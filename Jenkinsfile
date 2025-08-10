@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven3'
+        maven 'maven-3.8.6'
     }
 
     environment {
@@ -20,7 +20,7 @@ pipeline {
         stage('Build & Test') {
             steps {
                 echo "🔹 Running unit tests..."
-                sh 'mvn -B clean verify'
+                bat 'mvn -B clean verify'
             }
         }
 
@@ -44,7 +44,7 @@ pipeline {
         stage('Build & Push with Jib') {
             steps {
                 echo "🚀 Building and pushing Docker image with Jib..."
-                sh """
+                bat """
                     mvn -B -DskipTests compile jib:build \
                         -Djib.to.image=${IMAGE_NAME}:${IMAGE_TAG} \
                         -Djib.to.auth.username=${DOCKERHUB_USR} \
