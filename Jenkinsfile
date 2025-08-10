@@ -6,7 +6,7 @@ pipeline {
     }
 
     environment {
-        DOCKERHUB = credentials('dockerhub-credentials-id')
+        DOCKERHUB = credentials('dockerhubpassword1')
         IMAGE_NAME = "docker.io/manivannanbgi/bgibridge"
     }
 
