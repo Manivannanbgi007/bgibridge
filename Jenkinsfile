@@ -19,7 +19,7 @@ pipeline {
     stage('Build & Test') {
       steps {
         echo "🔹 Running Maven build & tests..."
-        sh 'mvn -B clean verify'
+        bat 'mvn -B clean verify'
       }
     }
 
@@ -28,7 +28,7 @@ pipeline {
         script {
           def branch = env.BRANCH_NAME ?: 'local'
           def shortSha = (env.GIT_COMMIT ? env.GIT_COMMIT.take(7) :
-                          sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim())
+                          bat(script: 'git rev-parse --short HEAD', returnStdout: true).trim())
 
           if (branch == 'main' || branch == 'master') {
             env.IMAGE_TAG = 'latest'
@@ -47,7 +47,7 @@ pipeline {
         withCredentials([usernamePassword(credentialsId: 'dockerhubpassword1', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
           script {
             def imageRef = "${IMAGE_NAME}:${env.IMAGE_TAG}"
-            sh """
+            bat """
               mvn -B -DskipTests compile jib:build \
                 -Djib.to.image=${imageRef} \
                 -Djib.to.auth.username=${DOCKER_USER} \
