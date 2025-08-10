@@ -1,0 +1,55 @@
+server:
+  port: 8301
+
+spring:
+  application:
+    name: bgibridge
+    version: 1.0.0
+
+  jpa:
+    properties:
+      hibernate:
+        "[format_sql]": true
+        "[show_sql]": true
+        dialect: org.hibernate.dialect.MySQLDialect
+    show-sql: 'true'
+    hibernate:
+      ddl-auto: update
+  datasource:
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    url: jdbc:mysql://localhost:3306/bgibgidge_db?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&&autoReconnect=true&&useSSL=false&useUnicode=true&&characterEncoding=UTF-8&useLegacyDatetimeCode=false&zeroDateTimeBehavior=convertToNull
+  sql:
+    init:
+      mode: always
+      platform: mysql
+
+logging:
+  file:
+    name: bgibridge.log
+  level:
+    root: OFF
+    com:
+      simpleapp: INFO
+      numericaideas: DEBUG
+    org:
+      hibernate:
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE
+        SQL: DEBUG
+      springframework: 'OFF'
+      apache: 'OFF'
+
+## Enable metrics endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true

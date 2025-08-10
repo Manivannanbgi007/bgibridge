@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "management.endpoints.metrics.enabled",
+    "type": "java.lang.String",
+    "description": "A description for 'management.endpoints.metrics.enabled'"
+  },
+  {
+    "name": "management.endpoints.prometheus.enabled",
+    "type": "java.lang.String",
+    "description": "A description for 'management.endpoints.prometheus.enabled'"
+  }
+]}
