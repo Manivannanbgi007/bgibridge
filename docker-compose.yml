@@ -1,0 +1,99 @@
+version: '3.8'
+
+services:
+  springboot:
+    image: bgibridge:latest
+    build:
+      dockerfile: Dockerfile
+    container_name: bgibridge
+    ports:
+      - "8301:8301"
+    labels:
+      logging: "enabled"
+    logging:
+      driver: "json-file"
+      options:
+       max-size: "10m"
+       max-file: "3"
+    volumes:
+      - ./logs:/logs  # mount host logs directory to container
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/bgibgidge_db?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&&autoReconnect=true&&useSSL=false&useUnicode=true&&characterEncoding=UTF-8&useLegacyDatetimeCode=false&zeroDateTimeBehavior=convertToNull
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    networks:
+      - loki-net
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: demo_db
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  loki:
+    image: grafana/loki:2.9.4
+    container_name: loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - loki-net
+
+  promtail:
+    image: grafana/promtail:2.9.2
+    volumes:
+      - ./logs/bgibgidge.log:/logs/bgibgidge.log   # ⬅ Mount exact log file
+      - ./promtail-config.yaml:/etc/promtail/promtail.yaml
+    command: -config.file=/etc/promtail/promtail.yaml
+    depends_on:
+      - loki
+    networks:
+      - loki-net
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - loki-net
+
+  grafana:
+    image: grafana/grafana:10.2.3
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - loki
+      - prometheus
+    networks:
+      - loki-net
+
+volumes:
+  grafana-storage:
+  mysql_data:
+
+networks:
+  loki-net:
+    driver: bridge
